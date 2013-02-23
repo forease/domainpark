@@ -2,13 +2,13 @@
 package main
 
 import (
-	"fmt"
-	//"io/ioutil"
-	//"net"
-	"net/http"
+    "fmt"
+    //"io/ioutil"
+    //"net"
+    "net/http"
     "html/template"
     "flag"
-	"strings"
+    "strings"
     "os"
     "time"
     //"strings"
@@ -17,17 +17,17 @@ import (
 )
 
 const (
-	cfgFileDefault = "./serverd.conf"
+    cfgFileDefault = "./serverd.conf"
 )
 
 type sysCfg struct {
-	// SiteName string
+    // SiteName string
     logfile string
-	webPort, debug int
+    webPort, debug int
 
     // redis setup
-	redisHost, redisAuth, redisKeyFix string
-	redisPort, redisDb int
+    redisHost, redisAuth, redisKeyFix string
+    redisPort, redisDb int
 
     // SMTP setup
     smtpHost, smtpUser, smtpPassword string
@@ -41,56 +41,56 @@ var AppConfig sysCfg
 
 // Read cfgfile or setup defaults.
 func setupConfig() {
-	// 初始化读取配置文件
-	c, err := config.ReadDefault( *cfgfile )
-	if err != nil {
-		fmt.Println( "read config file error: ", *cfgfile, err )
-		os.Exit(1)
-	}
+    // 初始化读取配置文件
+    c, err := config.ReadDefault( *cfgfile )
+    if err != nil {
+        fmt.Println( "read config file error: ", *cfgfile, err )
+        os.Exit(1)
+    }
 
-	// 读取[common]段配置
+    // 读取[common]段配置
 
-	AppConfig.webPort, _ = c.Int("common", "webport")
-	AppConfig.debug, _ = c.Int("common", "debug")
-	AppConfig.logfile, _ = c.String("common", "log")
+    AppConfig.webPort, _ = c.Int("common", "webport")
+    AppConfig.debug, _ = c.Int("common", "debug")
+    AppConfig.logfile, _ = c.String("common", "log")
 
-	AppConfig.redisHost, _ = c.String("redis", "host")
-	AppConfig.redisAuth, _ = c.String("redis", "auth")
-	AppConfig.redisKeyFix, _ = c.String("redis", "key_prefix")
-	AppConfig.redisPort, _ = c.Int("redis", "prt")
-	AppConfig.redisDb, _ = c.Int("redis", "db")
+    AppConfig.redisHost, _ = c.String("redis", "host")
+    AppConfig.redisAuth, _ = c.String("redis", "auth")
+    AppConfig.redisKeyFix, _ = c.String("redis", "key_prefix")
+    AppConfig.redisPort, _ = c.Int("redis", "prt")
+    AppConfig.redisDb, _ = c.Int("redis", "db")
 
     // SMTP
-	AppConfig.smtpHost, _ = c.String("smtp", "host")
-	AppConfig.smtpUser, _ = c.String("smtp", "user")
-	AppConfig.smtpPassword, _ = c.String("smtp", "password")
-	AppConfig.smtpPort, _ = c.Int("smtp", "port")
-	AppConfig.smtpAuth, _ = c.Bool("smtp", "auth")
-	AppConfig.smtpTLS, _ = c.Bool("smtp", "tls")
+    AppConfig.smtpHost, _ = c.String("smtp", "host")
+    AppConfig.smtpUser, _ = c.String("smtp", "user")
+    AppConfig.smtpPassword, _ = c.String("smtp", "password")
+    AppConfig.smtpPort, _ = c.Int("smtp", "port")
+    AppConfig.smtpAuth, _ = c.Bool("smtp", "auth")
+    AppConfig.smtpTLS, _ = c.Bool("smtp", "tls")
     AppConfig.smtpDaemon, _ = c.Bool("smtp", "daemon" )
 
 }
 
 func redisConnect() ( rd redis.Client, err error ) {
-	spec := redis.DefaultSpec().Db(AppConfig.redisDb)
-	if AppConfig.redisHost != "" {
-		spec.Host( AppConfig.redisHost )
-	}
-	if AppConfig.redisAuth != "" {
-		spec.Password( AppConfig.redisAuth )
-	}
-	port := AppConfig.redisPort
-	if port > 0 && port < 65535 {
-		spec.Port( port )
-	}
+    spec := redis.DefaultSpec().Db(AppConfig.redisDb)
+    if AppConfig.redisHost != "" {
+        spec.Host( AppConfig.redisHost )
+    }
+    if AppConfig.redisAuth != "" {
+        spec.Password( AppConfig.redisAuth )
+    }
+    port := AppConfig.redisPort
+    if port > 0 && port < 65535 {
+        spec.Port( port )
+    }
 
-	rd, err = redis.NewSynchClientWithSpec(spec)
-	if err != nil {
+    rd, err = redis.NewSynchClientWithSpec(spec)
+    if err != nil {
         fmt.Printf( "Connect Redis: %s", err )
         return rd, err
-	}
+    }
 
-	return rd, nil
+    return rd, nil
 }
 
 
@@ -116,12 +116,12 @@ func report() (rep string, err error) {
     rep += "    Domain and count:\n\n"
 
     list, err := rd.Keys( keys )
-	if err != nil {
-		return "", err
-	}
-	// fmt.Println(list)	
+    if err != nil {
+        return "", err
+    }
+    // fmt.Println(list)    
 
-	for _, v := range list {
+    for _, v := range list {
         count, _ := rd.Get(v)
         rep += "    " + v + ": " + string(count) + "\n";
     }
@@ -218,7 +218,7 @@ func main() {
 
     listen := fmt.Sprintf(":%d", AppConfig.webPort )
 
-	http.HandleFunc( "/", makeHandler )
+    http.HandleFunc( "/", makeHandler )
     err := http.ListenAndServe( listen, nil )
     if err != nil {
         fmt.Println( "Run server err", err )
