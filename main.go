@@ -22,7 +22,7 @@ const (
 
 type sysCfg struct {
     // SiteName string
-    logfile string
+    logfile, reportTo string
     webPort, debug int
 
     // redis setup
@@ -53,6 +53,7 @@ func setupConfig() {
     AppConfig.webPort, _ = c.Int("common", "webport")
     AppConfig.debug, _ = c.Int("common", "debug")
     AppConfig.logfile, _ = c.String("common", "log")
+    AppConfig.reportTo, _ = c.String("common", "reportto")
 
     AppConfig.redisHost, _ = c.String("redis", "host")
     AppConfig.redisAuth, _ = c.String("redis", "auth")
@@ -98,6 +99,16 @@ func rediClose() {
 
 }
 
+func yesterday() string {
+
+    y := time.Now().Unix() - 86400
+
+    n := time.Unix( y, 0 ).Format("20060102")
+
+    //fmt.Println(y, n)
+
+    return n
+}
 
 func report() (rep string, err error) {
     rd, err := redisConnect()
@@ -108,7 +119,7 @@ func report() (rep string, err error) {
 
     defer rd.Quit()
 
-    date := time.Now().Format("20060102")
+    date := yesterday() //time.Now().Format("20060102")
     keys := "*:" + date
 
     rep = "HI\n"
@@ -144,7 +155,8 @@ func reportServer() {
             fmt.Println("send mail now ...")
             reportBody, err := report()
             if err == nil {
-                err = MailSender( "Domain Park Report", reportBody, "im16hot@gmail.com" )
+                err = MailSender( "Domain Park Report " +
+                time.Now().Format("2006-01-02"), reportBody, AppConfig.reportTo )
                 if err != nil {
                     fmt.Println("send mail err", err )
                 } else {
@@ -213,6 +225,8 @@ func main() {
     flag.Parse()
     setupConfig()
     initDomainExt()
+
+    yesterday()
 
     go reportServer()
 
