@@ -22,7 +22,7 @@ const (
 
 type sysCfg struct {
     // SiteName string
-    logfile, reportTo string
+    logfile, reportTo, webDir string
     webPort, debug int
 
     // redis setup
@@ -54,6 +54,7 @@ func setupConfig() {
     AppConfig.debug, _ = c.Int("common", "debug")
     AppConfig.logfile, _ = c.String("common", "log")
     AppConfig.reportTo, _ = c.String("common", "reportto")
+    AppConfig.webDir, _ = c.String("common", "webdir")
 
     AppConfig.redisHost, _ = c.String("redis", "host")
     AppConfig.redisAuth, _ = c.String("redis", "auth")
@@ -184,7 +185,11 @@ func makeHandler(w http.ResponseWriter, r *http.Request) {
     }
     fmt.Printf( "[%v] %s %s %s %s %v\n",time.Now(), r.RemoteAddr, r.Method, r.Host, r.RequestURI, r.Referer()  )
 
-    t, _ := template.ParseFiles("index.html")
+    t, err := template.ParseFiles( AppConfig.webDir + "index.html")
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
     t.Execute(w, nil)
 
 
