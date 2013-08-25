@@ -36,8 +36,16 @@ A simple domain park daemon by Golang
     password = testmail 
     auth = true
     tls  = true
+
+## About
+
+    北京实易时代科技有限公司
+    Beijing ForEase Times Technology Co., Ltd.
+    http://www.forease.net
+
     
 ## Contact me
 
-    Jonsen im16hot#gmail.com (replace # with @)
+    Jonsen Yang
+    im16hot#gmail.com (replace # with @)
 
