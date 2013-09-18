@@ -4,7 +4,7 @@ package main
 import (
     "fmt"
     //"io/ioutil"
-    //"net"
+    "net"
     "net/http"
     "html/template"
     "flag"
@@ -22,7 +22,7 @@ const (
 
 type sysCfg struct {
     // SiteName string
-    logfile, reportTo, webDir string
+    logfile, reportTo, webDir, webHost string
     webPort, debug int
 
     // redis setup
@@ -50,6 +50,7 @@ func setupConfig() {
 
     // 读取[common]段配置
 
+    AppConfig.webHost, _ = c.String("common", "webhost")
     AppConfig.webPort, _ = c.Int("common", "webport")
     AppConfig.debug, _ = c.Int("common", "debug")
     AppConfig.logfile, _ = c.String("common", "log")
@@ -235,7 +236,12 @@ func main() {
 
     go reportServer()
 
-    listen := fmt.Sprintf(":%d", AppConfig.webPort )
+    var listen string
+    if AppConfig.webHost != "" && net.ParseIP(AppConfig.webHost) != nil {
+        listen = fmt.Sprintf("%s:%d", AppConfig.webHost, AppConfig.webPort )
+    } else {
+        listen = fmt.Sprintf(":%d", AppConfig.webPort )
+    }
 
     http.HandleFunc( "/", makeHandler )
     err := http.ListenAndServe( listen, nil )
