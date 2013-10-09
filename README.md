@@ -5,7 +5,7 @@ A simple domain park daemon by Golang
 
 ## How to build
 
-    git clone https://github.com/jonsen/domainpark.git
+    git clone https://github.com/forease/domainpark.git
     cd domainpark
     go build -o domainpark *.go
     
